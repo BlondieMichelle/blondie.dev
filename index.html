@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>kryptowährungspreise</title>
+  <style>
+    :root {
+      --bg: #282828;
+      --text: #ebdbb2;
+      --highlight: #fabd2f;
+      --up: #b8bb26;
+      --down: #fb4934;
+    }
+
+    body.light {
+      --bg: #fbf1c7;
+      --text: #3c3836;
+      --highlight: #3c3836;
+      --up: #689d6a;
+      --down: #cc241d;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-transform: lowercase;
+      transition: background-color 0.3s, color 0.3s, background-image 0.5s ease-in-out;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+    }
+
+    #blur-overlay {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(6px);
+      z-index: -1;
+      display: none;
+    }
+
+    h1 {
+      color: var(--highlight);
+      margin-bottom: 1rem;
+    }
+
+    .price {
+      font-size: 2rem;
+      margin: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .price img {
+      width: 32px;
+      height: 32px;
+      transition: transform 0.3s ease;
+    }
+
+    .price img:hover {
+      transform: rotate(360deg) scale(1.2);
+    }
+
+    .change {
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
+    .up {
+      color: var(--up);
+    }
+
+    .down {
+      color: var(--down);
+    }
+
+    #last-update {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: var(--highlight);
+    }
+
+    #toggle-theme {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: 2px solid var(--highlight);
+      color: var(--highlight);
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+    }
+
+    #select-image-btn {
+      position: absolute;
+      top: 1rem;
+      right: 7rem;
+      background: none;
+      border: 2px solid var(--highlight);
+      color: var(--highlight);
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+    }
+
+    #footer-location,
+    #footer-date,
+    #footer-greeting {
+      position: absolute;
+      font-size: 0.9rem;
+      color: var(--highlight);
+    }
+
+    #footer-location {
+      bottom: 0.5rem;
+      left: 1rem;
+      white-space: pre-line;
+    }
+
+    #footer-date {
+      bottom: 0.5rem;
+      right: 1rem;
+      text-align: right;
+    }
+
+    #footer-greeting {
+      bottom: 0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .left-links {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .left-links a {
+      color: var(--highlight);
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    #custom-coin-form {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    #custom-coin-input {
+      background: none;
+      border: 1px solid var(--highlight);
+      color: var(--highlight);
+      padding: 0.2rem 0.5rem;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    #add-coin-btn {
+      background: none;
+      border: 1px solid var(--highlight);
+      color: var(--highlight);
+      padding: 0.2rem 0.6rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    #background-upload {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="blur-overlay"></div>
+
+  <div class="left-links">
+    <a href="https://ff.io" target="_blank">➤ ff.io: krypto handeln</a>
+    <a href="https://www.reddit.com/r/CryptoCurrency/" target="_blank">➤ r/CryptoCurrency</a>
+    <a href="https://www.reddit.com/r/Bitcoin/" target="_blank">➤ r/Bitcoin</a>
+    <a href="https://www.reddit.com/r/Monero/" target="_blank">➤ r/Monero</a>
+    <a href="https://www.reddit.com/r/solana/" target="_blank">➤ r/solana</a>
+  </div>
+
+  <button id="select-image-btn">bild auswählen</button>
+  <input type="file" id="background-upload" accept="image/*" multiple />
+  <button id="toggle-theme">☀️/🌙</button>
+
+  <h1>kryptowährungspreise</h1>
+  <div class="price" id="btc"></div>
+  <div class="price" id="xmr"></div>
+  <div class="price" id="sol"></div>
+
+  <form id="custom-coin-form">
+    <input type="text" id="custom-coin-input" placeholder="coin eingeben…" />
+    <button type="submit" id="add-coin-btn">anzeigen</button>
+  </form>
+
+  <div id="last-update">letztes update: wird geladen...</div>
+  <div id="footer-location"></div>
+  <div id="footer-date"></div>
+  <div id="footer-greeting"></div>
+
+  <script>
+    let imageIndex = 0;
+    let imageList = [];
+
+    const blurOverlay = document.getElementById('blur-overlay');
+    const uploadInput = document.getElementById('background-upload');
+    const selectImageBtn = document.getElementById('select-image-btn');
+
+    selectImageBtn.addEventListener('click', () => uploadInput.click());
+
+    uploadInput.addEventListener('change', function () {
+      const files = Array.from(this.files).filter(file => file.type.startsWith('image/'));
+      if (!files.length) return alert('bitte gültige bilder hochladen.');
+      imageList = [];
+      let loaded = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imageList.push(e.target.result);
+          loaded++;
+          if (loaded === files.length) {
+            imageIndex = 0;
+            localStorage.setItem('customBackgrounds', JSON.stringify(imageList));
+            applyBackground(imageList[imageIndex]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    function applyBackground(dataUrl) {
+      document.body.style.backgroundImage = `url(${dataUrl})`;
+      blurOverlay.style.display = 'block';
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') document.body.classList.add('light');
+    const savedBgs = localStorage.getItem('customBackgrounds');
+    if (savedBgs) {
+      imageList = JSON.parse(savedBgs);
+      if (imageList.length) {
+        imageIndex = 0;
+        applyBackground(imageList[imageIndex]);
+      }
+    }
+    setInterval(() => {
+      if (imageList.length > 1) {
+        imageIndex = (imageIndex + 1) % imageList.length;
+        applyBackground(imageList[imageIndex]);
+      }
+    }, 300000);
+
+    document.getElementById('toggle-theme').addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      const theme = document.body.classList.contains('light') ? 'light' : 'dark';
+      localStorage.setItem('theme', theme);
+    });
+
+    // ----------- coins/preise -----------
+    let currentCurrency = 'usd';
+    const coins = { bitcoin: 'btc', monero: 'xmr', solana: 'sol' };
+    let customCoins = [];
+
+    const greetings = [
+      "willkommen!", "schön, dass du da bist.", "hab einen schönen tag.",
+      "viel spaß beim stöbern.", "grüße dich.", "alles gute für heute."
+    ];
+
+    function fetchWithTimeout(url, timeout = 7000) {
+      return Promise.race([
+        fetch(url),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeout))
+      ]);
+    }
+
+    async function fetchBatchPrices(ids) {
+      if (!ids.length) return [];
+      try {
+        const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&ids=${ids.join(',')}`;
+        const res = await fetchWithTimeout(url, 7000);
+        // prüfe auf rate limit
+        if (res.status === 429) throw new Error('rate-limited');
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      } catch (e) {
+        if (e.message === 'rate-limited') {
+          // zeige rate limit meldung
+          for (const id of ids) {
+            showFetchError(getCoinDivId(id), 'warte… zu viele anfragen');
+          }
+        }
+        return [];
+      }
+    }
+
+    function getCoinDivId(coinId) {
+      return coins[coinId] ? coins[coinId] : `custom-${coinId}`;
+    }
+
+    function renderPrice(coin) {
+      const id = getCoinDivId(coin.id);
+      let container = document.getElementById(id);
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'price';
+        container.id = id;
+        document.body.insertBefore(container, document.getElementById('custom-coin-form'));
+      }
+      const changeClass = coin.price_change_percentage_24h >= 0 ? 'up' : 'down';
+      const symbol = coin.symbol.toUpperCase();
+      const price = ['bitcoin','monero','solana'].includes(coin.id) ? coin.current_price.toFixed(2) : coin.current_price.toFixed(6);
+      container.innerHTML = `
+        <img src="${coin.image}" alt="${coin.name} logo">
+        <a href="https://www.coingecko.com/de/munze/${coin.id}" target="_blank" style="color: var(--highlight); text-decoration: none;">
+          ${symbol}
+        </a>: ${currentCurrency === 'usd' ? '$':'€'}${price}
+        <span class="change ${changeClass}">(${coin.price_change_percentage_24h.toFixed(2)}%)</span>
+      `;
+    }
+
+    function showFetchError(id, name='unbekannt') {
+      let container = document.getElementById(id);
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'price';
+        container.id = id;
+        document.body.insertBefore(container, document.getElementById('custom-coin-form'));
+      }
+      container.textContent = `${name}: fehler beim abrufen`;
+    }
+
+    async function fetchPrices() {
+      // doppelten coin rausfiltern
+      customCoins = customCoins.filter(x =>
+        !Object.keys(coins).includes(x) &&
+        document.getElementById('custom-'+x)
+          ? true : document.getElementById('custom-'+x) === null
+      );
+      // nur eindeutige ids
+      const uniqueIds = Array.from(new Set([...Object.keys(coins), ...customCoins]));
+      if (!uniqueIds.length) return;
+      const data = await fetchBatchPrices(uniqueIds);
+      // alle ids merken, damit divs aktuell bleiben
+      const foundIds = data.map(x => x.id);
+      // hauptcoins aktualisieren
+      Object.keys(coins).forEach(coin => {
+        const info = data.find(d => d.id === coin);
+        if (info) renderPrice(info);
+        else showFetchError(coins[coin], coin);
+      });
+      // custom coins updaten
+      customCoins.forEach(coin => {
+        const info = data.find(d => d.id === coin);
+        if (info) renderPrice(info);
+        else showFetchError('custom-'+coin, coin);
+      });
+      document.getElementById('last-update').textContent = `letztes update: ${new Date().toLocaleTimeString()}`;
+    }
+
+    async function fetchCustomCoin(coinId) {
+      if (!coinId) return;
+      coinId = coinId.toLowerCase();
+      if (Object.keys(coins).includes(coinId)) return; // ist hauptcoin!
+      if (customCoins.includes(coinId)) return; // schon angezeigt!
+      // test preview fetch (um zu prüfen ob coin existiert)
+      const data = await fetchBatchPrices([coinId]);
+      if (data.length && data[0] && data[0].id == coinId) {
+        customCoins.push(coinId);
+        renderPrice(data[0]);
+      } else {
+        showFetchError('custom-'+coinId, coinId);
+      }
+    }
+
+    async function fetchIPLocation() {
+      try {
+        const res = await fetchWithTimeout('https://ipapi.co/json/', 7000);
+        const data = await res.json();
+        const loc = `<a href="https://whatismyipaddress.com/ip/${data.ip}" target="_blank" style="color: var(--highlight); text-decoration: none;">ip: ${data.ip}</a>, ort: ${data.city}, ${data.country_name.toLowerCase()}`;
+        document.getElementById('footer-location').innerHTML = loc;
+      } catch {
+        document.getElementById('footer-location').textContent = '(ip standort nicht verfügbar)';
+      }
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('footer-date').textContent = `${now.toLocaleDateString('de-DE', options)}, ${now.toLocaleTimeString('de-DE')}`;
+    }
+
+    function updateGreeting() {
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+      document.getElementById('footer-greeting').textContent = greeting;
+    }
+
+    // umschalten usd/eur bei click auf coin
+    Object.values(coins).forEach(id => {
+      document.getElementById(id).addEventListener('click', () => {
+        currentCurrency = currentCurrency === 'usd' ? 'eur' : 'usd';
+        fetchPrices();
+      });
+    });
+
+    // custom coin formular
+    document.getElementById('custom-coin-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('custom-coin-input');
+      const coinName = input.value.trim().toLowerCase();
+      if (coinName) {
+        await fetchCustomCoin(coinName);
+        input.value = '';
+      }
+    });
+
+    fetchPrices();
+    // seltener! 180 sekunden = alle 3 min
+    setInterval(fetchPrices, 180000);
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    updateGreeting();
+    fetchIPLocation();
+  </script>
+</body>
+</html>
