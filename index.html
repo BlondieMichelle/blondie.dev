@@ -38,6 +38,13 @@
       background-position: center;
     }
 
+    input,
+    button,
+    input[type="file"] {
+      font-family: inherit;
+      text-transform: lowercase;
+    }
+
     #blur-overlay {
       content: '';
       position: fixed;
@@ -196,6 +203,9 @@
   <div id="blur-overlay"></div>
 
   <div class="left-links">
+    <a href="converter.html">➤ krypto konverter</a>
+    <a href="password.html">➤ passwort generator</a>
+    <a href="roulette.html">➤ roulette spiel</a>
     <a href="https://ff.io" target="_blank">➤ ff.io: krypto handeln</a>
     <a href="https://www.reddit.com/r/CryptoCurrency/" target="_blank">➤ r/CryptoCurrency</a>
     <a href="https://www.reddit.com/r/Bitcoin/" target="_blank">➤ r/Bitcoin</a>
@@ -302,13 +312,11 @@
       try {
         const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&ids=${ids.join(',')}`;
         const res = await fetchWithTimeout(url, 7000);
-        // prüfe auf rate limit
         if (res.status === 429) throw new Error('rate-limited');
         const data = await res.json();
         return Array.isArray(data) ? data : [];
       } catch (e) {
         if (e.message === 'rate-limited') {
-          // zeige rate limit meldung
           for (const id of ids) {
             showFetchError(getCoinDivId(id), 'warte… zu viele anfragen');
           }
@@ -354,25 +362,20 @@
     }
 
     async function fetchPrices() {
-      // doppelten coin rausfiltern
       customCoins = customCoins.filter(x =>
         !Object.keys(coins).includes(x) &&
         document.getElementById('custom-'+x)
           ? true : document.getElementById('custom-'+x) === null
       );
-      // nur eindeutige ids
       const uniqueIds = Array.from(new Set([...Object.keys(coins), ...customCoins]));
       if (!uniqueIds.length) return;
       const data = await fetchBatchPrices(uniqueIds);
-      // alle ids merken, damit divs aktuell bleiben
       const foundIds = data.map(x => x.id);
-      // hauptcoins aktualisieren
       Object.keys(coins).forEach(coin => {
         const info = data.find(d => d.id === coin);
         if (info) renderPrice(info);
         else showFetchError(coins[coin], coin);
       });
-      // custom coins updaten
       customCoins.forEach(coin => {
         const info = data.find(d => d.id === coin);
         if (info) renderPrice(info);
@@ -384,9 +387,8 @@
     async function fetchCustomCoin(coinId) {
       if (!coinId) return;
       coinId = coinId.toLowerCase();
-      if (Object.keys(coins).includes(coinId)) return; // ist hauptcoin!
-      if (customCoins.includes(coinId)) return; // schon angezeigt!
-      // test preview fetch (um zu prüfen ob coin existiert)
+      if (Object.keys(coins).includes(coinId)) return;
+      if (customCoins.includes(coinId)) return;
       const data = await fetchBatchPrices([coinId]);
       if (data.length && data[0] && data[0].id == coinId) {
         customCoins.push(coinId);
@@ -438,7 +440,6 @@
     });
 
     fetchPrices();
-    // seltener! 180 sekunden = alle 3 min
     setInterval(fetchPrices, 180000);
     updateDateTime();
     setInterval(updateDateTime, 1000);
