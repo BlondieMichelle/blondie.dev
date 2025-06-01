@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>krypto konverter</title>
+  <style>
+    :root {
+      --bg: #282828;
+      --text: #ebdbb2;
+      --highlight: #fabd2f;
+      --up: #b8bb26;
+      --down: #fb4934;
+    }
+
+    body.light {
+      --bg: #fbf1c7;
+      --text: #3c3836;
+      --highlight: #3c3836;
+      --up: #689d6a;
+      --down: #cc241d;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-transform: lowercase;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+    }
+
+    input,
+    button,
+    select {
+      font-family: inherit;
+      text-transform: lowercase;
+    }
+
+    h1 {
+      color: var(--highlight);
+      margin-bottom: 2rem;
+    }
+
+    .converter-container {
+      background: rgba(40, 40, 40, 0.8);
+      border: 2px solid var(--highlight);
+      padding: 2rem;
+      backdrop-filter: blur(5px);
+      min-width: 400px;
+      text-align: center;
+    }
+
+    body.light .converter-container {
+      background: rgba(251, 241, 199, 0.8);
+    }
+
+    .mode-toggle {
+      margin-bottom: 2rem;
+    }
+
+    .mode-toggle button {
+      background: none;
+      border: 1px solid var(--highlight);
+      color: var(--highlight);
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 0 0.25rem;
+    }
+
+    .mode-toggle button.active {
+      background: var(--highlight);
+      color: var(--bg);
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+    }
+
+    .input-group label {
+      display: block;
+      color: var(--highlight);
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+    }
+
+    .input-group input,
+    .input-group select {
+      background: none;
+      border: 1px solid var(--highlight);
+      color: var(--highlight);
+      padding: 0.5rem;
+      font-size: 1.2rem;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .input-group input::placeholder {
+      color: var(--highlight);
+      opacity: 0.7;
+    }
+
+    .result {
+      color: var(--highlight);
+      font-size: 2rem;
+      margin: 2rem 0;
+      min-height: 3rem;
+      border: 1px solid var(--highlight);
+      padding: 1rem;
+      background: rgba(250, 189, 47, 0.1);
+    }
+
+    #toggle-theme {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: 2px solid var(--highlight);
+      color: var(--highlight);
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+    }
+
+    .back-link {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      color: var(--highlight);
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .note {
+      color: var(--highlight);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      opacity: 0.8;
+    }
+
+    .arrow {
+      color: var(--highlight);
+      font-size: 2rem;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← zurück zur hauptseite</a>
+  <button id="toggle-theme">☀️/🌙</button>
+
+  <h1>krypto konverter</h1>
+
+  <div class="converter-container">
+    <div class="mode-toggle">
+      <button id="crypto-to-fiat" class="active">krypto → fiat</button>
+      <button id="fiat-to-crypto">fiat → krypto</button>
+    </div>
+
+    <div class="input-group">
+      <label for="amount">menge:</label>
+      <input type="number" id="amount" placeholder="z.b. 0.43" step="any">
+    </div>
+
+    <div class="input-group" id="from-group">
+      <label for="from-currency" id="from-label">kryptowährung:</label>
+      <select id="from-currency">
+        <option value="">coin wählen...</option>
+        <option value="bitcoin">bitcoin (btc)</option>
+        <option value="monero">monero (xmr)</option>
+        <option value="solana">solana (sol)</option>
+        <option value="ethereum">ethereum (eth)</option>
+        <option value="cardano">cardano (ada)</option>
+        <option value="polkadot">polkadot (dot)</option>
+        <option value="chainlink">chainlink (link)</option>
+        <option value="litecoin">litecoin (ltc)</option>
+        <option value="avalanche-2">avalanche (avax)</option>
+        <option value="polygon">polygon (matic)</option>
+      </select>
+    </div>
+
+    <div class="arrow">↓</div>
+
+    <div class="input-group" id="to-group">
+      <label for="to-currency" id="to-label">zielwährung:</label>
+      <select id="to-currency">
+        <option value="usd">usd ($)</option>
+        <option value="eur">eur (€)</option>
+      </select>
+    </div>
+
+    <div class="result" id="result">ergebnis wird hier angezeigt...</div>
+
+    <div class="note">
+      preise werden in echtzeit von coingecko abgerufen
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'crypto-to-fiat';
+
+    // theme handling
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') document.body.classList.add('light');
+
+    document.getElementById('toggle-theme').addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      const theme = document.body.classList.contains('light') ? 'light' : 'dark';
+      localStorage.setItem('theme', theme);
+    });
+
+    // mode toggle
+    function updateMode(mode) {
+      currentMode = mode;
+
+      // update buttons
+      document.getElementById('crypto-to-fiat').classList.toggle('active', mode === 'crypto-to-fiat');
+      document.getElementById('fiat-to-crypto').classList.toggle('active', mode === 'fiat-to-crypto');
+
+      const fromLabel = document.getElementById('from-label');
+      const toLabel = document.getElementById('to-label');
+      const fromSelect = document.getElementById('from-currency');
+      const toSelect = document.getElementById('to-currency');
+
+      if (mode === 'crypto-to-fiat') {
+        fromLabel.textContent = 'kryptowährung:';
+        toLabel.textContent = 'zielwährung:';
+
+        fromSelect.innerHTML = `
+          <option value="">coin wählen...</option>
+          <option value="bitcoin">bitcoin (btc)</option>
+          <option value="monero">monero (xmr)</option>
+          <option value="solana">solana (sol)</option>
+          <option value="ethereum">ethereum (eth)</option>
+          <option value="cardano">cardano (ada)</option>
+          <option value="polkadot">polkadot (dot)</option>
+          <option value="chainlink">chainlink (link)</option>
+          <option value="litecoin">litecoin (ltc)</option>
+          <option value="avalanche-2">avalanche (avax)</option>
+          <option value="polygon">polygon (matic)</option>
+        `;
+
+        toSelect.innerHTML = `
+          <option value="usd">usd ($)</option>
+          <option value="eur">eur (€)</option>
+        `;
+      } else {
+        fromLabel.textContent = 'fiat währung:';
+        toLabel.textContent = 'ziel kryptowährung:';
+
+        fromSelect.innerHTML = `
+          <option value="usd">usd ($)</option>
+          <option value="eur">eur (€)</option>
+        `;
+
+        toSelect.innerHTML = `
+          <option value="">coin wählen...</option>
+          <option value="bitcoin">bitcoin (btc)</option>
+          <option value="monero">monero (xmr)</option>
+          <option value="solana">solana (sol)</option>
+          <option value="ethereum">ethereum (eth)</option>
+          <option value="cardano">cardano (ada)</option>
+          <option value="polkadot">polkadot (dot)</option>
+          <option value="chainlink">chainlink (link)</option>
+          <option value="litecoin">litecoin (ltc)</option>
+          <option value="avalanche-2">avalanche (avax)</option>
+          <option value="polygon">polygon (matic)</option>
+        `;
+      }
+
+      updateConverter();
+    }
+
+    document.getElementById('crypto-to-fiat').addEventListener('click', () => updateMode('crypto-to-fiat'));
+    document.getElementById('fiat-to-crypto').addEventListener('click', () => updateMode('fiat-to-crypto'));
+
+    // converter logic
+    function fetchWithTimeout(url, timeout = 7000) {
+      return Promise.race([
+        fetch(url),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeout))
+      ]);
+    }
+
+    async function updateConverter() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const fromValue = document.getElementById('from-currency').value;
+      const toValue = document.getElementById('to-currency').value;
+      const resultDiv = document.getElementById('result');
+
+      if (!amount || !fromValue || !toValue) {
+        resultDiv.textContent = 'ergebnis wird hier angezeigt...';
+        return;
+      }
+
+      resultDiv.textContent = 'wird berechnet...';
+
+      try {
+        let cryptoCoin, fiatCurrency, result, resultText;
+
+        if (currentMode === 'crypto-to-fiat') {
+          cryptoCoin = fromValue;
+          fiatCurrency = toValue;
+
+          const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${fiatCurrency}&ids=${cryptoCoin}`;
+          const res = await fetchWithTimeout(url, 7000);
+
+          if (res.status === 429) {
+            resultDiv.textContent = 'zu viele anfragen, bitte warten...';
+            return;
+          }
+
+          const data = await res.json();
+
+          if (data.length && data[0]) {
+            const price = data[0].current_price;
+            result = amount * price;
+            const symbol = fiatCurrency === 'usd' ? '$' : '€';
+            const coinSymbol = data[0].symbol.toUpperCase();
+
+            resultDiv.innerHTML = `
+              ${amount} ${coinSymbol} = ${symbol}${result.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            `;
+          } else {
+            resultDiv.textContent = 'coin nicht gefunden';
+          }
+        } else {
+          // fiat to crypto
+          cryptoCoin = toValue;
+          fiatCurrency = fromValue;
+
+          const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${fiatCurrency}&ids=${cryptoCoin}`;
+          const res = await fetchWithTimeout(url, 7000);
+
+          if (res.status === 429) {
+            resultDiv.textContent = 'zu viele anfragen, bitte warten...';
+            return;
+          }
+
+          const data = await res.json();
+
+          if (data.length && data[0]) {
+            const price = data[0].current_price;
+            result = amount / price;
+            const symbol = fiatCurrency === 'usd' ? '$' : '€';
+            const coinSymbol = data[0].symbol.toUpperCase();
+
+            // bestimme dezimalstellen basierend auf coin
+            const decimals = ['bitcoin', 'ethereum', 'monero', 'solana'].includes(cryptoCoin) ? 6 : 8;
+
+            resultDiv.innerHTML = `
+              ${symbol}${amount} = ${result.toLocaleString('de-DE', {minimumFractionDigits: decimals, maximumFractionDigits: decimals})} ${coinSymbol}
+            `;
+          } else {
+            resultDiv.textContent = 'coin nicht gefunden';
+          }
+        }
+      } catch (error) {
+        resultDiv.textContent = 'fehler beim abrufen der daten';
+      }
+    }
+
+    // event listeners
+    document.getElementById('amount').addEventListener('input', updateConverter);
+    document.getElementById('from-currency').addEventListener('change', updateConverter);
+    document.getElementById('to-currency').addEventListener('change', updateConverter);
+  </script>
+</body>
+</html>
