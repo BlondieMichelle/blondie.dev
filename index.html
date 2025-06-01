@@ -11,6 +11,7 @@
       --highlight: #fabd2f;
       --up: #b8bb26;
       --down: #fb4934;
+      --border: #504945;
     }
 
     body.light {
@@ -19,6 +20,11 @@
       --highlight: #3c3836;
       --up: #689d6a;
       --down: #cc241d;
+      --border: #d5c4a1;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
@@ -29,8 +35,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 1rem;
       text-transform: lowercase;
       transition: background-color 0.3s, color 0.3s, background-image 0.5s ease-in-out;
       position: relative;
@@ -38,15 +45,12 @@
       background-position: center;
     }
 
-    input,
-    button,
-    input[type="file"] {
+    input, button, input[type="file"] {
       font-family: inherit;
       text-transform: lowercase;
     }
 
     #blur-overlay {
-      content: '';
       position: fixed;
       top: 0;
       left: 0;
@@ -60,15 +64,38 @@
     h1 {
       color: var(--highlight);
       margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    #coins-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      max-width: 100%;
+      width: 600px;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      padding: 0;
+      position: relative;
     }
 
     .price {
-      font-size: 2rem;
-      margin: 0.5rem 0;
-      display: flex;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      margin: 0;
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       cursor: pointer;
+      position: relative;
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      margin-bottom: 0.2rem;
+    }
+
+    .price:hover {
+      background-color: rgba(250, 189, 47, 0.13);
     }
 
     .price img {
@@ -81,29 +108,49 @@
       transform: rotate(360deg) scale(1.2);
     }
 
+    .price .remove-btn {
+      margin-left: auto;
+      background: none;
+      border: 1px solid var(--down);
+      color: var(--down);
+      font-size: 0.8rem;
+      padding: 0.2rem 0.4rem;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+      border-radius: 2px;
+    }
+
+    .price:hover .remove-btn {
+      opacity: 1;
+    }
+
     .change {
       font-size: 1rem;
       margin-left: 0.5rem;
     }
 
-    .up {
-      color: var(--up);
-    }
-
-    .down {
-      color: var(--down);
-    }
+    .up { color: var(--up); }
+    .down { color: var(--down); }
 
     #last-update {
       margin-top: 1rem;
       font-size: 1rem;
       color: var(--highlight);
+      text-align: center;
     }
 
-    #toggle-theme {
+    .top-controls {
       position: absolute;
       top: 1rem;
       right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .control-btn {
       background: none;
       border: 2px solid var(--highlight);
       color: var(--highlight);
@@ -111,24 +158,16 @@
       font-size: 1rem;
       cursor: pointer;
       backdrop-filter: blur(5px);
+      border-radius: 2px;
+      transition: all 0.2s;
     }
 
-    #select-image-btn {
-      position: absolute;
-      top: 1rem;
-      right: 7rem;
-      background: none;
-      border: 2px solid var(--highlight);
-      color: var(--highlight);
-      padding: 0.3rem 0.6rem;
-      font-size: 1rem;
-      cursor: pointer;
-      backdrop-filter: blur(5px);
+    .control-btn:hover {
+      background-color: var(--highlight);
+      color: var(--bg);
     }
 
-    #footer-location,
-    #footer-date,
-    #footer-greeting {
+    #footer-location, #footer-date, #footer-greeting {
       position: absolute;
       font-size: 0.9rem;
       color: var(--highlight);
@@ -154,19 +193,40 @@
       text-align: center;
     }
 
-    .left-links {
+    .left-panel {
       position: absolute;
       top: 1rem;
       left: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.2rem;
+      gap: 1rem;
     }
 
-    .left-links a {
+    .link-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      backdrop-filter: blur(5px);
+    }
+
+    .link-section h3 {
+      margin: 0 0 0.3rem 0;
+      color: var(--highlight);
+      font-size: 0.9rem;
+    }
+
+    .link-section a {
       color: var(--highlight);
       text-decoration: none;
       font-size: 1rem;
+      transition: padding-left 0.2s;
+    }
+
+    .link-section a:hover {
+      padding-left: 0.5rem;
     }
 
     #custom-coin-form {
@@ -174,6 +234,7 @@
       display: flex;
       gap: 0.5rem;
       align-items: center;
+      position: relative;
     }
 
     #custom-coin-input {
@@ -183,6 +244,7 @@
       padding: 0.2rem 0.5rem;
       font-size: 1rem;
       outline: none;
+      border-radius: 2px;
     }
 
     #add-coin-btn {
@@ -192,39 +254,137 @@
       padding: 0.2rem 0.6rem;
       font-size: 1rem;
       cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
     }
 
-    #background-upload {
+    #add-coin-btn:hover:not(:disabled) {
+      background-color: var(--highlight);
+      color: var(--bg);
+    }
+
+    #add-coin-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #background-upload { display: none; }
+
+    .loading {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .error {
+      color: var(--down);
+    }
+
+    .no-coins-message {
+      color: var(--highlight);
+      font-size: 1.2rem;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    #autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border: 1px solid var(--highlight);
+      border-top: none;
+      max-height: 200px;
+      overflow-y: auto;
       display: none;
+      z-index: 10;
+    }
+
+    #autocomplete-list div {
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #autocomplete-list div:hover {
+      background-color: rgba(250, 189, 47, 0.2);
+    }
+
+    #countdown {
+      color: var(--down);
+      font-weight: bold;
+    }
+
+    #clear-bg-btn {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .left-panel {
+        display: none;
+      }
+
+      .top-controls {
+        top: 0.5rem;
+        right: 0.5rem;
+      }
+
+      .control-btn {
+        font-size: 0.9rem;
+        padding: 0.2rem 0.4rem;
+      }
+
+      #footer-location, #footer-date {
+        display: none;
+      }
+
+      .price {
+        font-size: 1.2rem;
+      }
     }
   </style>
 </head>
 <body>
   <div id="blur-overlay"></div>
 
-  <div class="left-links">
-    <a href="converter.html">➤ krypto konverter</a>
-    <a href="password.html">➤ passwort generator</a>
-    <a href="roulette.html">➤ roulette spiel</a>
-    <a href="https://ff.io" target="_blank">➤ ff.io: krypto handeln</a>
-    <a href="https://www.reddit.com/r/CryptoCurrency/" target="_blank">➤ r/CryptoCurrency</a>
-    <a href="https://www.reddit.com/r/Bitcoin/" target="_blank">➤ r/Bitcoin</a>
-    <a href="https://www.reddit.com/r/Monero/" target="_blank">➤ r/Monero</a>
-    <a href="https://www.reddit.com/r/solana/" target="_blank">➤ r/solana</a>
+  <div class="left-panel">
+    <div class="link-section">
+      <h3>tools</h3>
+      <a href="converter.html">➤ krypto konverter</a>
+      <a href="password.html">➤ passwort generator</a>
+      <a href="roulette.html">➤ roulette spiel</a>
+    </div>
+    <div class="link-section">
+      <h3>handeln</h3>
+      <a href="https://ff.io" target="_blank">➤ ff.io</a>
+    </div>
+    <div class="link-section">
+      <h3>reddit</h3>
+      <a href="https://www.reddit.com/r/CryptoCurrency/" target="_blank">➤ r/CryptoCurrency</a>
+      <a href="https://www.reddit.com/r/Bitcoin/" target="_blank">➤ r/Bitcoin</a>
+      <a href="https://www.reddit.com/r/Monero/" target="_blank">➤ r/Monero</a>
+      <a href="https://www.reddit.com/r/solana/" target="_blank">➤ r/solana</a>
+    </div>
   </div>
 
-  <button id="select-image-btn">bild auswählen</button>
+  <div class="top-controls">
+    <button id="select-image-btn" class="control-btn">bild auswählen</button>
+    <button id="clear-bg-btn" class="control-btn">bilder löschen</button>
+    <button id="toggle-theme" class="control-btn">☀️/🌙</button>
+  </div>
+
   <input type="file" id="background-upload" accept="image/*" multiple />
-  <button id="toggle-theme">☀️/🌙</button>
 
   <h1>kryptowährungspreise</h1>
-  <div class="price" id="btc"></div>
-  <div class="price" id="xmr"></div>
-  <div class="price" id="sol"></div>
+
+  <div id="coins-container"></div>
 
   <form id="custom-coin-form">
-    <input type="text" id="custom-coin-input" placeholder="coin eingeben…" />
-    <button type="submit" id="add-coin-btn">anzeigen</button>
+    <div style="position: relative; flex: 1;">
+      <input type="text" id="custom-coin-input" placeholder="coin eingeben..." style="width: 100%;" />
+      <div id="autocomplete-list"></div>
+    </div>
+    <button type="submit" id="add-coin-btn">hinzufügen</button>
   </form>
 
   <div id="last-update">letztes update: wird geladen...</div>
@@ -233,218 +393,608 @@
   <div id="footer-greeting"></div>
 
   <script>
-    let imageIndex = 0;
-    let imageList = [];
+    // konfiguration
+    const CONFIG = {
+      API_TIMEOUT: 7000,
+      PRICE_UPDATE_INTERVAL: 180000,
+      BACKGROUND_CYCLE_INTERVAL: 300000,
+      DATE_UPDATE_INTERVAL: 1000,
+      RATE_LIMIT_DELAY: 30000,
+      MAX_RETRY_DELAY: 300000,
+      MAX_IMAGE_SIZE: 5 * 1024 * 1024,
+      IMAGE_QUALITY: 0.8
+    };
 
-    const blurOverlay = document.getElementById('blur-overlay');
-    const uploadInput = document.getElementById('background-upload');
-    const selectImageBtn = document.getElementById('select-image-btn');
+    const INITIAL_COINS = ['bitcoin', 'monero', 'solana'];
 
-    selectImageBtn.addEventListener('click', () => uploadInput.click());
-
-    uploadInput.addEventListener('change', function () {
-      const files = Array.from(this.files).filter(file => file.type.startsWith('image/'));
-      if (!files.length) return alert('bitte gültige bilder hochladen.');
-      imageList = [];
-      let loaded = 0;
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          imageList.push(e.target.result);
-          loaded++;
-          if (loaded === files.length) {
-            imageIndex = 0;
-            localStorage.setItem('customBackgrounds', JSON.stringify(imageList));
-            applyBackground(imageList[imageIndex]);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-
-    function applyBackground(dataUrl) {
-      document.body.style.backgroundImage = `url(${dataUrl})`;
-      blurOverlay.style.display = 'block';
-    }
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') document.body.classList.add('light');
-    const savedBgs = localStorage.getItem('customBackgrounds');
-    if (savedBgs) {
-      imageList = JSON.parse(savedBgs);
-      if (imageList.length) {
-        imageIndex = 0;
-        applyBackground(imageList[imageIndex]);
-      }
-    }
-    setInterval(() => {
-      if (imageList.length > 1) {
-        imageIndex = (imageIndex + 1) % imageList.length;
-        applyBackground(imageList[imageIndex]);
-      }
-    }, 300000);
-
-    document.getElementById('toggle-theme').addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      const theme = document.body.classList.contains('light') ? 'light' : 'dark';
-      localStorage.setItem('theme', theme);
-    });
-
-    // ----------- coins/preise -----------
-    let currentCurrency = 'usd';
-    const coins = { bitcoin: 'btc', monero: 'xmr', solana: 'sol' };
-    let customCoins = [];
-
-    const greetings = [
-      "willkommen!", "schön, dass du da bist.", "hab einen schönen tag.",
-      "viel spaß beim stöbern.", "grüße dich.", "alles gute für heute."
+    const POPULAR_COINS = [
+      'bitcoin', 'ethereum', 'binancecoin', 'ripple', 'cardano', 'solana',
+      'polkadot', 'dogecoin', 'avalanche-2', 'chainlink', 'polygon', 'monero',
+      'stellar', 'cosmos', 'algorand', 'vechain', 'tezos', 'eos', 'aave',
+      'uniswap', 'litecoin', 'ethereum-classic', 'filecoin', 'tron', 'neo'
     ];
 
-    function fetchWithTimeout(url, timeout = 7000) {
-      return Promise.race([
-        fetch(url),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeout))
-      ]);
-    }
+    const state = {
+      imageIndex: 0,
+      imageList: [],
+      currentCurrency: 'usd',
+      userCoins: [],
+      eventListeners: new Map(),
+      lastRateLimit: 0,
+      retryDelay: CONFIG.RATE_LIMIT_DELAY,
+      isUpdating: false,
+      countdownInterval: null
+    };
 
-    async function fetchBatchPrices(ids) {
-      if (!ids.length) return [];
-      try {
-        const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}&ids=${ids.join(',')}`;
-        const res = await fetchWithTimeout(url, 7000);
-        if (res.status === 429) throw new Error('rate-limited');
-        const data = await res.json();
-        return Array.isArray(data) ? data : [];
-      } catch (e) {
-        if (e.message === 'rate-limited') {
-          for (const id of ids) {
-            showFetchError(getCoinDivId(id), 'warte… zu viele anfragen');
+    const GREETINGS = [
+      "willkommen!", "schön, dass du da bist.", "hab einen schönen tag.",
+      "viel spaß beim stöbern.", "grüße dich.", "alles gute für heute.",
+      "hodl strong!", "to the moon!", "diamantenhände!"
+    ];
+
+    const utils = {
+      safeParseJSON(str, defaultValue = null) {
+        try {
+          return JSON.parse(str);
+        } catch {
+          return defaultValue;
+        }
+      },
+
+      validateImageList(list) {
+        return Array.isArray(list) && list.every(item =>
+          typeof item === 'string' && item.startsWith('data:image/')
+        );
+      },
+
+      async fetchWithTimeout(url, timeout = CONFIG.API_TIMEOUT) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+        try {
+          const response = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          return response;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
+        }
+      },
+
+      async compressImage(dataUrl) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = img.width;
+            let height = img.height;
+
+            if (width > 1920 || height > 1080) {
+              const ratio = Math.min(1920 / width, 1080 / height);
+              width *= ratio;
+              height *= ratio;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            resolve(canvas.toDataURL('image/jpeg', CONFIG.IMAGE_QUALITY));
+          };
+          img.src = dataUrl;
+        });
+      },
+
+      debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      },
+
+      downloadJSON(data, filename) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    };
+
+    const storage = {
+      setTheme(theme) {
+        localStorage.setItem('theme', theme);
+      },
+
+      getTheme() {
+        return localStorage.getItem('theme');
+      },
+
+      setBackgrounds(imageList) {
+        try {
+          localStorage.setItem('customBackgrounds', JSON.stringify(imageList));
+        } catch (e) {
+          alert('speicherplatz voll - lösche alte bilder');
+        }
+      },
+
+      getBackgrounds() {
+        const stored = localStorage.getItem('customBackgrounds');
+        const parsed = utils.safeParseJSON(stored, []);
+        return utils.validateImageList(parsed) ? parsed : [];
+      },
+
+      setUserCoins(coins) {
+        localStorage.setItem('userCoins', JSON.stringify(coins));
+      },
+
+      getUserCoins() {
+        const stored = localStorage.getItem('userCoins');
+        const parsed = utils.safeParseJSON(stored, null);
+
+        if (!parsed || !Array.isArray(parsed)) {
+          this.setUserCoins(INITIAL_COINS);
+          return INITIAL_COINS;
+        }
+
+        return parsed.filter(c => typeof c === 'string');
+      },
+
+      setCurrency(currency) {
+        localStorage.setItem('currency', currency);
+      },
+
+      getCurrency() {
+        const stored = localStorage.getItem('currency');
+        return ['usd', 'eur'].includes(stored) ? stored : 'usd';
+      }
+    };
+
+    const backgroundManager = {
+      init() {
+        const uploadInput = document.getElementById('background-upload');
+        const selectBtn = document.getElementById('select-image-btn');
+        const clearBtn = document.getElementById('clear-bg-btn');
+
+        selectBtn.addEventListener('click', () => uploadInput.click());
+        clearBtn.addEventListener('click', () => this.clearBackgrounds());
+        uploadInput.addEventListener('change', this.handleUpload.bind(this));
+
+        this.loadSavedBackgrounds();
+        this.startCycling();
+      },
+
+      async handleUpload(event) {
+        const files = Array.from(event.target.files).filter(file => {
+          if (!file.type.startsWith('image/')) return false;
+          if (file.size > CONFIG.MAX_IMAGE_SIZE) {
+            alert(`${file.name} ist zu groß (max 5mb)`);
+            return false;
+          }
+          return true;
+        });
+
+        if (!files.length) return;
+
+        state.imageList = [];
+        let loaded = 0;
+
+        for (const file of files) {
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const compressed = await utils.compressImage(e.target.result);
+            state.imageList.push(compressed);
+            loaded++;
+
+            if (loaded === files.length) {
+              state.imageIndex = 0;
+              storage.setBackgrounds(state.imageList);
+              this.applyBackground(state.imageList[state.imageIndex]);
+              document.getElementById('clear-bg-btn').style.display = 'block';
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      },
+
+      applyBackground(dataUrl) {
+        document.body.style.backgroundImage = `url(${dataUrl})`;
+        document.getElementById('blur-overlay').style.display = 'block';
+              },
+
+      clearBackgrounds() {
+        if (confirm('alle hintergrundbilder löschen?')) {
+          state.imageList = [];
+          storage.setBackgrounds([]);
+          document.body.style.backgroundImage = '';
+          document.getElementById('blur-overlay').style.display = 'none';
+          document.getElementById('clear-bg-btn').style.display = 'none';
+        }
+      },
+
+      loadSavedBackgrounds() {
+        state.imageList = storage.getBackgrounds();
+        if (state.imageList.length) {
+          state.imageIndex = 0;
+          this.applyBackground(state.imageList[state.imageIndex]);
+          document.getElementById('clear-bg-btn').style.display = 'block';
+        }
+      },
+
+      startCycling() {
+        setInterval(() => {
+          if (state.imageList.length > 1) {
+            state.imageIndex = (state.imageIndex + 1) % state.imageList.length;
+            this.applyBackground(state.imageList[state.imageIndex]);
+          }
+        }, CONFIG.BACKGROUND_CYCLE_INTERVAL);
+      }
+    };
+
+    const themeManager = {
+      init() {
+        const saved = storage.getTheme();
+        if (saved === 'light') {
+          document.body.classList.add('light');
+        }
+
+        document.getElementById('toggle-theme').addEventListener('click', () => {
+          document.body.classList.toggle('light');
+          const theme = document.body.classList.contains('light') ? 'light' : 'dark';
+          storage.setTheme(theme);
+        });
+      }
+    };
+
+    const apiManager = {
+      async fetchBatchPrices(ids) {
+        if (!ids.length) return [];
+
+        const now = Date.now();
+        const timeSinceLimit = now - state.lastRateLimit;
+
+        if (timeSinceLimit < state.retryDelay) {
+          const remainingTime = Math.ceil((state.retryDelay - timeSinceLimit) / 1000);
+          this.showRateLimitMessage(remainingTime);
+          return [];
+        }
+
+        try {
+          const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${state.currentCurrency}&ids=${ids.join(',')}`;
+          const response = await utils.fetchWithTimeout(url);
+
+          if (response.status === 429) {
+            state.lastRateLimit = now;
+            state.retryDelay = Math.min(state.retryDelay * 2, CONFIG.MAX_RETRY_DELAY);
+            this.startCountdown();
+            throw new Error('rate-limited');
+          }
+
+          state.retryDelay = CONFIG.RATE_LIMIT_DELAY;
+          this.clearCountdown();
+
+          const data = await response.json();
+          return Array.isArray(data) ? data : [];
+        } catch (error) {
+          if (error.message === 'rate-limited') {
+            this.showRateLimitMessage(Math.ceil(state.retryDelay / 1000));
+          }
+          return [];
+        }
+      },
+
+      showRateLimitMessage(seconds) {
+        document.getElementById('last-update').innerHTML =
+          `<span class="error">rate limit erreicht - warte <span id="countdown">${seconds}</span>s</span>`;
+      },
+
+      startCountdown() {
+        this.clearCountdown();
+
+        state.countdownInterval = setInterval(() => {
+          const now = Date.now();
+          const timeSinceLimit = now - state.lastRateLimit;
+          const remaining = Math.ceil((state.retryDelay - timeSinceLimit) / 1000);
+
+          if (remaining <= 0) {
+            this.clearCountdown();
+            coinManager.fetchPrices();
+          } else {
+            const countdownEl = document.getElementById('countdown');
+            if (countdownEl) countdownEl.textContent = remaining;
+          }
+        }, 1000);
+      },
+
+      clearCountdown() {
+        if (state.countdownInterval) {
+          clearInterval(state.countdownInterval);
+          state.countdownInterval = null;
+        }
+      }
+    };
+
+    const coinManager = {
+      init() {
+        state.userCoins = storage.getUserCoins();
+        state.currentCurrency = storage.getCurrency();
+
+        document.getElementById('custom-coin-form').addEventListener('submit',
+          this.handleCoinSubmit.bind(this)
+        );
+
+        this.setupAutocomplete();
+        this.renderAllCoins();
+        this.fetchPrices();
+        setInterval(() => this.fetchPrices(), CONFIG.PRICE_UPDATE_INTERVAL);
+      },
+
+      setupAutocomplete() {
+        const input = document.getElementById('custom-coin-input');
+        const list = document.getElementById('autocomplete-list');
+
+        input.addEventListener('input', utils.debounce((e) => {
+          const value = e.target.value.toLowerCase();
+          if (!value) {
+            list.style.display = 'none';
+            return;
+          }
+
+          const matches = POPULAR_COINS
+            .filter(coin => coin.startsWith(value) && !state.userCoins.includes(coin))
+            .slice(0, 5);
+
+          if (matches.length) {
+            list.innerHTML = matches
+              .map(coin => `<div data-coin="${coin}">${coin}</div>`)
+              .join('');
+            list.style.display = 'block';
+          } else {
+            list.style.display = 'none';
+          }
+        }, 200));
+
+        list.addEventListener('click', (e) => {
+          if (e.target.dataset.coin) {
+            input.value = e.target.dataset.coin;
+            list.style.display = 'none';
+            this.handleCoinSubmit(new Event('submit'));
+          }
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('#custom-coin-form')) {
+            list.style.display = 'none';
+          }
+        });
+      },
+
+      renderAllCoins() {
+        const container = document.getElementById('coins-container');
+        container.innerHTML = '';
+
+        if (!state.userCoins.length) {
+          container.innerHTML = '<div class="no-coins-message">keine coins ausgewählt.<br>füge welche hinzu!</div>';
+          return;
+        }
+
+        state.userCoins.forEach(coinId => {
+          this.createCoinContainer(coinId);
+        });
+      },
+
+      createCoinContainer(coinId) {
+        const container = document.getElementById('coins-container');
+        const coinDiv = document.createElement('div');
+        coinDiv.className = 'price';
+        coinDiv.id = `coin-${coinId}`;
+        coinDiv.innerHTML = `<span class="loading">lade ${coinId}...</span>`;
+        container.appendChild(coinDiv);
+
+        this.addCurrencyToggleListener(coinDiv);
+      },
+
+      renderPrice(coin) {
+        const coinDiv = document.getElementById(`coin-${coin.id}`);
+        if (!coinDiv) return;
+
+        const changeClass = coin.price_change_percentage_24h >= 0 ? 'up' : 'down';
+        const symbol = coin.symbol.toUpperCase();
+
+        const isMainCoin = ['bitcoin', 'ethereum', 'binancecoin'].includes(coin.id);
+        const price = isMainCoin ?
+          coin.current_price.toFixed(2) :
+          coin.current_price < 1 ? coin.current_price.toFixed(6) : coin.current_price.toFixed(2);
+
+        coinDiv.innerHTML = `
+          <img src="${coin.image}" alt="${coin.name} logo">
+          <a href="https://www.coingecko.com/de/munze/${coin.id}" target="_blank"
+             style="color: var(--highlight); text-decoration: none;">
+            ${symbol}
+          </a>: ${state.currentCurrency === 'usd' ? '$':'€'}${price}
+          <span class="change ${changeClass}">(${coin.price_change_percentage_24h.toFixed(2)}%)</span>
+          <button class="remove-btn" onclick="coinManager.removeCoin('${coin.id}')">×</button>
+        `;
+      },
+
+      showCoinError(coinId, message = 'fehler beim laden') {
+        const coinDiv = document.getElementById(`coin-${coinId}`);
+        if (coinDiv) {
+          coinDiv.innerHTML = `<span class="error">${coinId}: ${message}</span>`;
+        }
+      },
+
+      addCurrencyToggleListener(coinDiv) {
+        if (state.eventListeners.has(coinDiv.id)) return;
+
+        const handler = (e) => {
+          if (e.target.classList.contains('remove-btn') ||
+              e.target.tagName === 'A' ||
+              e.target.tagName === 'IMG') return;
+
+          state.currentCurrency = state.currentCurrency === 'usd' ? 'eur' : 'usd';
+          storage.setCurrency(state.currentCurrency);
+          this.fetchPrices();
+        };
+
+        coinDiv.addEventListener('click', handler);
+        state.eventListeners.set(coinDiv.id, handler);
+      },
+
+      async fetchPrices() {
+        if (state.isUpdating || !state.userCoins.length) return;
+
+        state.isUpdating = true;
+        const data = await apiManager.fetchBatchPrices(state.userCoins);
+
+        state.userCoins.forEach(coinId => {
+          const coinData = data.find(d => d.id === coinId);
+          if (coinData) {
+            this.renderPrice(coinData);
+          } else if (data.length > 0) {
+            this.showCoinError(coinId, 'nicht gefunden');
+          }
+        });
+
+        if (data.length > 0) {
+          document.getElementById('last-update').textContent =
+            `letztes update: ${new Date().toLocaleTimeString()}`;
+        }
+
+        state.isUpdating = false;
+      },
+
+      async handleCoinSubmit(event) {
+        event.preventDefault();
+        const input = document.getElementById('custom-coin-input');
+        const addBtn = document.getElementById('add-coin-btn');
+        const coinName = input.value.trim().toLowerCase();
+
+        if (!coinName) return;
+
+        if (state.userCoins.includes(coinName)) {
+          alert('coin bereits hinzugefügt');
+          input.value = '';
+          return;
+        }
+
+        addBtn.disabled = true;
+        await this.addCoin(coinName);
+        addBtn.disabled = false;
+        input.value = '';
+        document.getElementById('autocomplete-list').style.display = 'none';
+      },
+
+      async addCoin(coinId) {
+        if (!coinId || state.userCoins.includes(coinId)) return;
+
+        state.userCoins.push(coinId);
+
+        if (state.userCoins.length === 1) {
+          document.getElementById('coins-container').innerHTML = '';
+        }
+
+        this.createCoinContainer(coinId);
+
+        const data = await apiManager.fetchBatchPrices([coinId]);
+
+        if (data.length && data[0] && data[0].id === coinId) {
+          storage.setUserCoins(state.userCoins);
+          this.renderPrice(data[0]);
+        } else {
+          state.userCoins = state.userCoins.filter(c => c !== coinId);
+          const coinDiv = document.getElementById(`coin-${coinId}`);
+          if (coinDiv) {
+            if (state.eventListeners.has(coinDiv.id)) {
+              coinDiv.removeEventListener('click', state.eventListeners.get(coinDiv.id));
+              state.eventListeners.delete(coinDiv.id);
+            }
+            coinDiv.remove();
+          }
+          alert(`coin "${coinId}" nicht gefunden`);
+
+          if (!state.userCoins.length) {
+            this.renderAllCoins();
           }
         }
-        return [];
+      },
+
+      removeCoin(coinId) {
+        const coinDiv = document.getElementById(`coin-${coinId}`);
+        if (coinDiv) {
+          if (state.eventListeners.has(coinDiv.id)) {
+            coinDiv.removeEventListener('click', state.eventListeners.get(coinDiv.id));
+            state.eventListeners.delete(coinDiv.id);
+          }
+          coinDiv.remove();
+        }
+
+        state.userCoins = state.userCoins.filter(c => c !== coinId);
+        storage.setUserCoins(state.userCoins);
+
+        if (!state.userCoins.length) {
+          this.renderAllCoins();
+        }
       }
-    }
+    };
 
-    function getCoinDivId(coinId) {
-      return coins[coinId] ? coins[coinId] : `custom-${coinId}`;
-    }
+    const footerManager = {
+      init() {
+        this.updateGreeting();
+        this.fetchIPLocation();
+        this.updateDateTime();
+        setInterval(() => this.updateDateTime(), CONFIG.DATE_UPDATE_INTERVAL);
+      },
 
-    function renderPrice(coin) {
-      const id = getCoinDivId(coin.id);
-      let container = document.getElementById(id);
-      if (!container) {
-        container = document.createElement('div');
-        container.className = 'price';
-        container.id = id;
-        document.body.insertBefore(container, document.getElementById('custom-coin-form'));
+      updateGreeting() {
+        const greeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+        document.getElementById('footer-greeting').textContent = greeting;
+      },
+
+      async fetchIPLocation() {
+        try {
+          const response = await utils.fetchWithTimeout('https://ipapi.co/json/');
+          const data = await response.json();
+          const locationHtml = `<a href="https://whatismyipaddress.com/ip/${data.ip}" target="_blank" style="color: var(--highlight); text-decoration: none;">ip: ${data.ip}</a>\nort: ${data.city}, ${data.country_name.toLowerCase()}`;
+          document.getElementById('footer-location').innerHTML = locationHtml;
+        } catch {
+          document.getElementById('footer-location').textContent = '(ip standort nicht verfügbar)';
+        }
+      },
+
+      updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const dateStr = `${now.toLocaleDateString('de-DE', options)}\n${now.toLocaleTimeString('de-DE')}`;
+        document.getElementById('footer-date').textContent = dateStr;
       }
-      const changeClass = coin.price_change_percentage_24h >= 0 ? 'up' : 'down';
-      const symbol = coin.symbol.toUpperCase();
-      const price = ['bitcoin','monero','solana'].includes(coin.id) ? coin.current_price.toFixed(2) : coin.current_price.toFixed(6);
-      container.innerHTML = `
-        <img src="${coin.image}" alt="${coin.name} logo">
-        <a href="https://www.coingecko.com/de/munze/${coin.id}" target="_blank" style="color: var(--highlight); text-decoration: none;">
-          ${symbol}
-        </a>: ${currentCurrency === 'usd' ? '$':'€'}${price}
-        <span class="change ${changeClass}">(${coin.price_change_percentage_24h.toFixed(2)}%)</span>
-      `;
+    };
+
+    function initApp() {
+      backgroundManager.init();
+      themeManager.init();
+      coinManager.init();
+      footerManager.init();
     }
 
-    function showFetchError(id, name='unbekannt') {
-      let container = document.getElementById(id);
-      if (!container) {
-        container = document.createElement('div');
-        container.className = 'price';
-        container.id = id;
-        document.body.insertBefore(container, document.getElementById('custom-coin-form'));
-      }
-      container.textContent = `${name}: fehler beim abrufen`;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
     }
 
-    async function fetchPrices() {
-      customCoins = customCoins.filter(x =>
-        !Object.keys(coins).includes(x) &&
-        document.getElementById('custom-'+x)
-          ? true : document.getElementById('custom-'+x) === null
-      );
-      const uniqueIds = Array.from(new Set([...Object.keys(coins), ...customCoins]));
-      if (!uniqueIds.length) return;
-      const data = await fetchBatchPrices(uniqueIds);
-      const foundIds = data.map(x => x.id);
-      Object.keys(coins).forEach(coin => {
-        const info = data.find(d => d.id === coin);
-        if (info) renderPrice(info);
-        else showFetchError(coins[coin], coin);
-      });
-      customCoins.forEach(coin => {
-        const info = data.find(d => d.id === coin);
-        if (info) renderPrice(info);
-        else showFetchError('custom-'+coin, coin);
-      });
-      document.getElementById('last-update').textContent = `letztes update: ${new Date().toLocaleTimeString()}`;
-    }
-
-    async function fetchCustomCoin(coinId) {
-      if (!coinId) return;
-      coinId = coinId.toLowerCase();
-      if (Object.keys(coins).includes(coinId)) return;
-      if (customCoins.includes(coinId)) return;
-      const data = await fetchBatchPrices([coinId]);
-      if (data.length && data[0] && data[0].id == coinId) {
-        customCoins.push(coinId);
-        renderPrice(data[0]);
-      } else {
-        showFetchError('custom-'+coinId, coinId);
-      }
-    }
-
-    async function fetchIPLocation() {
-      try {
-        const res = await fetchWithTimeout('https://ipapi.co/json/', 7000);
-        const data = await res.json();
-        const loc = `<a href="https://whatismyipaddress.com/ip/${data.ip}" target="_blank" style="color: var(--highlight); text-decoration: none;">ip: ${data.ip}</a>, ort: ${data.city}, ${data.country_name.toLowerCase()}`;
-        document.getElementById('footer-location').innerHTML = loc;
-      } catch {
-        document.getElementById('footer-location').textContent = '(ip standort nicht verfügbar)';
-      }
-    }
-
-    function updateDateTime() {
-      const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('footer-date').textContent = `${now.toLocaleDateString('de-DE', options)}, ${now.toLocaleTimeString('de-DE')}`;
-    }
-
-    function updateGreeting() {
-      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-      document.getElementById('footer-greeting').textContent = greeting;
-    }
-
-    // umschalten usd/eur bei click auf coin
-    Object.values(coins).forEach(id => {
-      document.getElementById(id).addEventListener('click', () => {
-        currentCurrency = currentCurrency === 'usd' ? 'eur' : 'usd';
-        fetchPrices();
-      });
-    });
-
-    // custom coin formular
-    document.getElementById('custom-coin-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const input = document.getElementById('custom-coin-input');
-      const coinName = input.value.trim().toLowerCase();
-      if (coinName) {
-        await fetchCustomCoin(coinName);
-        input.value = '';
-      }
-    });
-
-    fetchPrices();
-    setInterval(fetchPrices, 180000);
-    updateDateTime();
-    setInterval(updateDateTime, 1000);
-    updateGreeting();
-    fetchIPLocation();
+    window.coinManager = coinManager;
   </script>
 </body>
 </html>
